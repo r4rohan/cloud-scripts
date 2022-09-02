@@ -1,0 +1,8 @@
+resource "google_project_iam_binding" {{ res_name }} {
+  project = module.{{ project_id }}.project_id
+  role    = "{{ iambinding_roles }}"
+
+  members = [
+    "{{ iambinding_member }}",
+  ]
+}

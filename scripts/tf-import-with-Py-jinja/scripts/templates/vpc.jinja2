@@ -1,0 +1,6 @@
+resource "google_compute_network" {{ vpc_name }} {
+    auto_create_subnetworks         = {{ auto_create_subnetworks }}
+    mtu                             = {{ mtu }}
+    name                            = "{{ vpc_name }}"
+    project                         = module.{{ project_id }}.project_id
+}

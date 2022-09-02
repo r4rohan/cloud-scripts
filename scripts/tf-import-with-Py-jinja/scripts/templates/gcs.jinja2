@@ -1,0 +1,10 @@
+resource "google_storage_bucket" "{{ res_name }}" {
+  name          = "{{ gcs_name }}"
+  location      = "{{ gcs_location }}"
+  force_destroy = {{ gcs_force_destroy }}
+  versioning    {
+    enabled = {{ gcs_versioning }}
+  }
+  storage_class = "{{ gcs_storage_class }}"
+  uniform_bucket_level_access = {{ gcs_uniform_bla }}
+}

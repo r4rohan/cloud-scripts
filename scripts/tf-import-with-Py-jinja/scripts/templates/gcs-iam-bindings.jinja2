@@ -1,0 +1,5 @@
+resource "google_storage_bucket_iam_member" "{{ res_name }}" {
+  bucket = "{{ iambinding_bucket_name }}"
+  role = "{{ iambinding_roles }}"
+  member = "{{ iambinding_member }}"
+}
