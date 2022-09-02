@@ -1,7 +1,7 @@
 # Cloud Scripts
 GitHub Repository for storing **Bash**, **Python**, **Jinja** and **Powershell** Scripts.
 
-Also contains scripts related to our(Rohan Singh and Rahul Kumar Singh) medium blog.
+Also contains scripts related to our(Rohan Singh and Rahul Kumar Singh) medium blogs.
 
 ## Medium blog
 [Using Pre-Scripts in VM Manager to patch GCP VMs (OS Patch Management)](https://blog.searce.com/patching-gce-vms-using-gcp-vm-manager-os-patch-management-a27eba7d356f) - By [Rohan Singh](https://rohankalhans.medium.com/)
