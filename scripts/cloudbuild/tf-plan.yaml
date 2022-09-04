@@ -37,7 +37,7 @@ steps:
       ls && pwd
 
 - id: 'Push Terraform Output file to JFrog Artifactory'
-  name: 'jfrog-docker-reg2.bintray.io/google-cloud-builder/java/jfrog:0.1'
+  name: 'docker.bintray.io/jfrog/artifactory-cpp-ce'
   dir: 'scripts/cloudbuild/gce-tf'
   entrypoint: 'bash'
   args: 
