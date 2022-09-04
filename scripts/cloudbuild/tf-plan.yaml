@@ -36,9 +36,11 @@ steps:
       terraform plan -out "tf_plan"
       ls && pwd
 
-# - id: 'Push Terraform Output file to JFrog Artifactory'
-#   name: 'jfrog-docker-reg2.bintray.io/google-cloud-builder/java/jfrog:0.1'
-#   dir: 'maven-example'
-#   entrypoint: bash'
-#   args: ['-c', 'jfrog rt c rt-mvn-repo --url=https://[ARTIFACTORY-URL]/artifactory --user=[ARTIFACTORY-USER] --password=$$APIKEY']
-#   secretEnv: ['APIKEY']
+- id: 'Push Terraform Output file to JFrog Artifactory'
+  name: 'jfrog-docker-reg2.bintray.io/google-cloud-builder/java/jfrog:0.1'
+  dir: 'scripts/cloudbuild/gce-tf'
+  entrypoint: bash'
+  args: 
+  - '-c'
+  - |
+    jf rt upload /workspace/scripts/cloudbuild/gce-tf/tf_plan https://cloudorbit.jfrog.io/artifactory/tf-artifact-generic-local/tf/ --sync-deletes="https://cloudorbit.jfrog.io/artifactory/tf-artifact-generic-local/tf/tf_plan"
