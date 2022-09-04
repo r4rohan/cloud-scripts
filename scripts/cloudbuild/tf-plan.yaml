@@ -37,10 +37,10 @@ steps:
       ls && pwd
 
 - id: 'Push Terraform Output file to JFrog Artifactory'
-  name: 'jfrog-docker-patch/docker.jfrog.io'
+  name: 'docker.bintray.io/jfrog/artifactory-cpp-ce'
   dir: 'scripts/cloudbuild/gce-tf'
   entrypoint: 'sh'
   args: 
   - '-c'
   - |
-    jf rt upload /workspace/scripts/cloudbuild/gce-tf/tf_plan https://cloudorbit.jfrog.io/artifactory/tf-artifact-generic-local/tf/ --sync-deletes="https://cloudorbit.jfrog.io/artifactory/tf-artifact-generic-local/tf/tf_plan"
+    curl -H "${_JFROG_API}" -T tf-plan.yaml "${_JFROG_ARTIFACTORY_URL}/tf/yaml_file"
