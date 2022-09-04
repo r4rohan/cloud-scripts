@@ -44,4 +44,4 @@ steps:
   - '-c'
   - |
     ls -la && pwd
-    curl -H "${_JFROG_API}" -T /workspace/scripts/cloudbuild/gce-tf/tf-plan "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan"
+    curl -H "${_JFROG_API}" -T tf-plan "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan"
