@@ -1,5 +1,5 @@
 resource "google_service_account" "loki" {
-  account_id   = "loki"
+  account_id   = "default"
   display_name = "Loki Service Account"
 }
 
