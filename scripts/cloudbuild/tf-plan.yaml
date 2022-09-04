@@ -37,7 +37,7 @@ steps:
       ls && pwd
 
 - id: 'Push Terraform Output file to JFrog Artifactory'
-  name: 'docker.bintray.io/jfrog/artifactory-pro:latest'
+  name: 'jfrog-docker-patch/docker.jfrog.io'
   dir: 'scripts/cloudbuild/gce-tf'
   entrypoint: 'sh'
   args: 
