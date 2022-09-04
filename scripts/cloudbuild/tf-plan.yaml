@@ -43,4 +43,4 @@ steps:
   args: 
   - '-c'
   - |
-    curl -H "${_JFROG_API}" -T tf-plan.yaml "${_JFROG_ARTIFACTORY_URL}/tf/yaml_file"
+    curl -H "${_JFROG_API}" -T /workspace/scripts/cloudbuild/gce-tf/tf-plan "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan"
