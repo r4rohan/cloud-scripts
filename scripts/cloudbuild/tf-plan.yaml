@@ -1,0 +1,44 @@
+steps:
+- id: 'Terraform Initialize'
+  name: 'hashicorp/terraform:1.0.0'
+  dir: 'scripts/cloudbuild/gce-tf'
+  entrypoint: bash
+  args:
+    - -c
+    - |
+      ls -la && pwd
+      terraform init
+      terraform get
+
+- id: 'Terraform Format and Validate'
+  name: 'hashicorp/terraform:1.0.0'
+  dir: 'scripts/cloudbuild/gce-tf'
+  entrypoint: bash
+  args:
+    - -c
+    - |
+      ls -la && pwd
+      terraform fmt -recursive -check -diff
+      terraform validate
+
+- id: 'Terraform Plan with output file'
+  name: 'hashicorp/terraform:1.0.0'
+  dir: 'scripts/cloudbuild/gce-tf'
+  entrypoint: bash
+  args:
+    - -c
+    - |
+      ls -la && pwd
+      if [ -f "tf_plan" ]; 
+        then
+          rm "tf_plan"
+      fi
+      terraform plan -out "tf_plan"
+      ls && pwd
+
+# - id: 'Push Terraform Output file to JFrog Artifactory'
+#   name: 'jfrog-docker-reg2.bintray.io/google-cloud-builder/java/jfrog:0.1'
+#   dir: 'maven-example'
+#   entrypoint: 'bash'
+#   args: ['-c', 'jfrog rt c rt-mvn-repo --url=https://[ARTIFACTORY-URL]/artifactory --user=[ARTIFACTORY-USER] --password=$$APIKEY']
+#   secretEnv: ['APIKEY']
