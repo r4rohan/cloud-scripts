@@ -1,5 +1,5 @@
 resource "google_service_account" "loki" {
-  account_id   = "default"
+  account_id   = "god-loki"
   display_name = "Loki Service Account"
 }
 
@@ -14,7 +14,7 @@ resource "google_compute_instance" "loki" {
     initialize_params {
       size  = 30
       type  = "pd-standard"
-      image = ubuntu-1804-lts
+      image = "ubuntu-1804-lts"
     }
   }
 
