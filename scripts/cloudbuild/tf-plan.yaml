@@ -45,3 +45,11 @@ steps:
   - |
     ls -la && pwd
     curl -H "${_JFROG_API}" -T tf_plan "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan"
+
+- id: 'Push to Slack'
+  name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    gcloud functions call cb-notifier
