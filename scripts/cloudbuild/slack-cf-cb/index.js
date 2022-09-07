@@ -1,5 +1,5 @@
 const { IncomingWebhook } = require('@slack/webhook');
-const url = process.env.SLACK_WEBHOOK_URL;
+const url = 'https://hooks.slack.com/services/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';
 
 const webhook = new IncomingWebhook(url);
 
@@ -42,13 +42,17 @@ const createSlackMessage = (build) => {
     attachments: [
       {
         color: STATUS_COLOR[build.status] || DEFAULT_COLOR,
+        text: `Trigger Name - ${build.substitutions.TRIGGER_NAME}`,
+        text: `Repo - ${build.substitutions.REPO_NAME}`,
         text: `Branch - \`${build.substitutions.BRANCH_NAME}\``,
         fields: [{
-          title: 'Status',
+          title: 'TRIGGER STATUS',
           value: build.status,
+        },
+        {
+          title: 'CB LOGS',
+          title_link: build.logUrl
         }],
-        title: 'Build logs',
-        title_link: build.logUrl
       }
     ]
   };
