@@ -1,5 +1,5 @@
 const { IncomingWebhook } = require('@slack/webhook');
-const url = 'https://hooks.slack.com/services/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';
+const url = '{Enter-slack-webhook}';
 
 const webhook = new IncomingWebhook(url);
 
@@ -7,10 +7,6 @@ const webhook = new IncomingWebhook(url);
 module.exports.subscribeSlack = (pubSubEvent, context) => {
   const build = eventToBuild(pubSubEvent.data);
 
-  // Skip if the current status is not in the status list.
-  // Add additional statuses to list if you'd like:
-  // QUEUED, WORKING, SUCCESS, FAILURE,
-  // INTERNAL_ERROR, TIMEOUT, CANCELLED
   const status = ['SUCCESS', 'FAILURE', 'INTERNAL_ERROR', 'TIMEOUT', 'CANCELLED'];
   if (status.indexOf(build.status) === -1) {
     return;
@@ -33,28 +29,69 @@ const STATUS_COLOR = {
   TIMEOUT: '#FBBC05', // yellow
   INTERNAL_ERROR: '#EA4335', // red
 };
-// createSlackMessage creates a message from a build object.
+
 const createSlackMessage = (build) => {
   const message = {
-    // text: `${build.substitutions.BRANCH_NAME._SLACK_MESSAGE}`,
-    text: `${build.substitutions._SLACK_MESSAGE}`,
-    mrkdwn: true,
     attachments: [
       {
         color: STATUS_COLOR[build.status] || DEFAULT_COLOR,
-        text: `Trigger Name - ${build.substitutions.TRIGGER_NAME}`,
-        text: `Repo - ${build.substitutions.REPO_NAME}`,
-        text: `Branch - \`${build.substitutions.BRANCH_NAME}\``,
-        fields: [{
-          title: 'TRIGGER STATUS',
-          value: build.status,
-        },
-        {
-          title: 'CB LOGS',
-          title_link: build.logUrl
-        }],
-      }
-    ]
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*Cloud Build Trigger* - ${build.substitutions.TRIGGER_NAME}`,
+            },
+          },
+          {
+            "type": "section",
+            "fields": [
+              {
+                "type": "mrkdwn",
+                "text": `*Github Repo:*\n${build.substitutions.REPO_NAME}`,
+              },
+              {
+                "type": "mrkdwn",
+                "text": `*Branch:*\n${build.substitutions.BRANCH_NAME}`,
+              },
+              {
+                "type": "mrkdwn",
+                "text": `*Build Status:*\n${build.status}`,
+              },
+              {
+                "type": "mrkdwn",
+                "text": `*Build Logs:*\n<${build.logUrl}|Log URL>`,
+              }
+            ]
+          },
+          {
+            "type": "actions",
+            "elements": [
+              {
+                "type": "button",
+                "text": {
+                  "type": "plain_text",
+                  "emoji": true,
+                  "text": `Approve`
+                },
+                "style": "primary",
+                "value": "click_me_123"
+              },
+              {
+                "type": "button",
+                "text": {
+                  "type": "plain_text",
+                  "emoji": true,
+                  "text": `Deny`
+                },
+                "style": "danger",
+                "value": "click_me_123"
+              },
+            ],
+          },
+        ],
+      },
+    ],
   };
   return message;
 }
