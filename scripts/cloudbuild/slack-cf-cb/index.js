@@ -1,17 +1,23 @@
+const { App, LogLevel } = require("@slack/bolt");
 const { IncomingWebhook } = require('@slack/webhook');
-const url = '{Enter-slack-webhook}';
+const url = 'https://hooks.slack.com/services/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';
 
 const webhook = new IncomingWebhook(url);
+
+const app = new App({
+  token: "xoxb-14351683122-4046474135153-9rvuBkm7McJCcl3JJoGTU9bZ", // from OAuth & Permissions tab of Slack APP.
+  signingSecret: "04f50a5235ae53182141ba09d3efe7cb",
+  // LogLevel can be imported and used to make debugging simpler
+  logLevel: LogLevel.DEBUG
+});
 
 // subscribeSlack is the main function called by Cloud Functions.
 module.exports.subscribeSlack = (pubSubEvent, context) => {
   const build = eventToBuild(pubSubEvent.data);
-
   const status = ['SUCCESS', 'FAILURE', 'INTERNAL_ERROR', 'TIMEOUT', 'CANCELLED'];
   if (status.indexOf(build.status) === -1) {
     return;
   }
-
   // Send message to Slack.
   const message = createSlackMessage(build);
   webhook.send(message);
@@ -44,6 +50,9 @@ const createSlackMessage = (build) => {
             },
           },
           {
+            "type": "divider"
+          },
+          {
             "type": "section",
             "fields": [
               {
@@ -65,33 +74,38 @@ const createSlackMessage = (build) => {
             ]
           },
           {
-            "type": "actions",
-            "elements": [
-              {
-                "type": "button",
-                "text": {
-                  "type": "plain_text",
-                  "emoji": true,
-                  "text": `Approve`
-                },
-                "style": "primary",
-                "value": "click_me_123"
-              },
-              {
-                "type": "button",
-                "text": {
-                  "type": "plain_text",
-                  "emoji": true,
-                  "text": `Deny`
-                },
-                "style": "danger",
-                "value": "click_me_123"
-              },
-            ],
+            "type": "divider"
           },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: "Run Slack Slash command to approve and trigger consecutive Cloud build trigger."
+            }
+          }
         ],
       },
     ],
   };
   return message;
 }
+
+app.action('approve_button', async ({ ack }) => {
+  await ack();
+  // Update the message to reflect the action
+});
+
+app.action('approve_button', async ({ ack, say }) => {
+  // Acknowledge action request
+  await ack();
+  await say('Terraform Plan Approved ✔️');
+});
+
+await context.chat.postMessage({
+  text: 'Hello world!',
+});
+
+await context.chat.update({
+  text: 'Hello world!',
+  ts: '1405894322.002768',
+});
