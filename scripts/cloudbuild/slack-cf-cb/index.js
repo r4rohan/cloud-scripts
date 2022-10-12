@@ -1,6 +1,6 @@
 const { App, LogLevel } = require("@slack/bolt");
 const { IncomingWebhook } = require('@slack/webhook');
-const url = 'https://hooks.slack.com/services/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';
+const url = '[Slack-token]';
 
 const webhook = new IncomingWebhook(url);
 
