@@ -5,8 +5,8 @@ const url = '[Slack-token]';
 const webhook = new IncomingWebhook(url);
 
 const app = new App({
-  token: "xoxb-14351683122-4046474135153-9rvuBkm7McJCcl3JJoGTU9bZ", // from OAuth & Permissions tab of Slack APP.
-  signingSecret: "04f50a5235ae53182141ba09d3efe7cb",
+  token: "[token]", // from OAuth & Permissions tab of Slack APP.
+  signingSecret: "[secret]",
   // LogLevel can be imported and used to make debugging simpler
   logLevel: LogLevel.DEBUG
 });
