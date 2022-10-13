@@ -1,6 +1,6 @@
 steps:
 - id: 'Pre Trigger Status Message'
-  name: 'ubuntu'
+  name: 'alpine/curl'
   entrypoint: 'sh'
   args: 
   - '-c'
