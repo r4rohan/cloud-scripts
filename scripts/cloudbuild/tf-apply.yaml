@@ -6,7 +6,7 @@ steps:
   - '-c'
   - |
     ls -la && pwd
-    curl -X POST -H 'Content-type: application/json' --data '{"channel":"${_CHANNEL_ID}","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"Build Started"}}]}' "${_SLACK_WEBHOOK}"
+    curl -X POST -H 'Content-type: application/json' --data '{"channel":"${_CHANNEL_ID}","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"Build Started for $$TRIGGER_NAME"}}]}' "${_SLACK_WEBHOOK}"
 - name: ubuntu
   args:
   - echo
