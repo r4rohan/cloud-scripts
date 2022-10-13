@@ -10,6 +10,7 @@ steps:
 
 - id: 'Download Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli-full-v2-jf'
+  entrypoint: 'sh'
   args:
   - '-c'
   - |
