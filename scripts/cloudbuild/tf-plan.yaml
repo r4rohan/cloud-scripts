@@ -53,3 +53,6 @@ steps:
   - -c
   - |
     gcloud pubsub topics publish ${_PUBSUB_TOPIC} --message='"Build Succes"'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
