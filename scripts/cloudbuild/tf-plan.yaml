@@ -52,4 +52,4 @@ steps:
   args:
   - -c
   - |
-    gcloud pubsub topics publish ${_PUBSUB_TOPIC} --message='"Build Succes"'
+    gcloud pubsub topics publish ${_PUBSUB_TOPIC} --attributes=status=success
