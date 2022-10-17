@@ -1,15 +1,11 @@
 steps:
 - id: 'Pre Trigger Status Message'
   name: 'alpine/curl'
+  entrypoint: sh
   args: 
-    [
-      '-X', 
-      'POST', 
-      '-H', 
-      '"Content-type: application/json"', 
-      '--data "{"channel":"${_CHANNEL_ID}","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"Build Started for *$TRIGGER_NAME*"}}]}"',
-      '${_SLACK_WEBHOOK}'
-      ]
+    - -c
+    - |
+      curl -X POST -H 'Content-type: application/json' --data '{"channel":"${_CHANNEL_ID}","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"Build Started for *$TRIGGER_NAME*"}}]}' "${_SLACK_WEBHOOK}"
 
 - id: 'Download Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
