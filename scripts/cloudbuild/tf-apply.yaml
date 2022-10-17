@@ -19,7 +19,6 @@ steps:
 - id: 'Terraform Init'
   name: 'hashicorp/terraform:1.0.0'
   dir: 'scripts/cloudbuild/gce-tf'
-  entrypoint: 'sh'
   args: ['terraform' ,'init']
   
 - id: 'Terraform Apply'
