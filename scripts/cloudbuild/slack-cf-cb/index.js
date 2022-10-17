@@ -39,7 +39,7 @@ const createSlackMessage = (build) => {
             type: "section",
             text: {
               type: "mrkdwn",
-              text: `*First CB* - ${build.substitutions.TRIGGER_NAME}`,
+              text: `*Cloud Build* - ${build.substitutions.TRIGGER_NAME}`,
             },
           },
           {
