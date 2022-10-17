@@ -6,7 +6,6 @@ steps:
   args:
     - -c
     - |
-      ls -la && pwd
       terraform init
       terraform get
 
@@ -17,7 +16,6 @@ steps:
   args:
     - -c
     - |
-      ls -la && pwd
       terraform fmt -recursive -check -diff
       terraform validate
 
@@ -28,21 +26,18 @@ steps:
   args:
     - -c
     - |
-      ls -la && pwd
       if [ -f "tf_plan" ]; 
         then
           rm "tf_plan"
       fi
       terraform plan -out "tf_plan"
-      ls && pwd
 
 - id: 'Push Terraform Output file to JFrog Artifactory'
   name: 'docker.bintray.io/jfrog/artifactory-cpp-ce'
   dir: 'scripts/cloudbuild/gce-tf'
   entrypoint: sh
   args: 
-  - '-c'
-  - |
-    ls -la && pwd
-    curl -H "${_JFROG_API}" -T tf_plan "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan"
+    - '-c'
+    - |
+      curl -H "${_JFROG_API}" -T tf_plan "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan"
 
