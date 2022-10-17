@@ -5,7 +5,6 @@ steps:
   args: 
   - '-c'
   - |
-    ls -la && pwd
     curl -X POST -H 'Content-type: application/json' --data '{"channel":"${_CHANNEL_ID}","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"Build Started for *$TRIGGER_NAME*"}}]}' "${_SLACK_WEBHOOK}"
 
 - id: 'Download Terraform Artifact from JFrog'
@@ -16,7 +15,6 @@ steps:
   - '-c'
   - |
     curl -H "${_JFROG_API}" -XGET "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan" --output tf_plan
-    ls -la && pwd
 
 - id: 'Terraform Plan with output file'
   name: 'hashicorp/terraform:1.0.0'
@@ -25,11 +23,9 @@ steps:
   args:
     - -c
     - |
-      ls -la && pwd
       terraform ifefbdrfgbdfgbgfbfgbsfgd
       terraform appgvdsfvsdfbdfgdfgly "tf_plan"
       rm tf_plan
-      ls -la && pwd
 
 - id: 'Delete Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
