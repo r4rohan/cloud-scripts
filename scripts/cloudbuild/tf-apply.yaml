@@ -7,6 +7,14 @@ steps:
   - |
     curl -X POST -H 'Content-type: application/json' --data '{"channel":"${_CHANNEL_ID}","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"Build Started for *$TRIGGER_NAME*"}}]}' "${_SLACK_WEBHOOK}"
 
+- id: 'Send msg'
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    gcloud pubsub topics publish cloud-builds
+
 - id: 'Download Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
   dir: 'scripts/cloudbuild/gce-tf'
