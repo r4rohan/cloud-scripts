@@ -21,7 +21,7 @@ resource "google_compute_instance" "loki" {
   }
 
   network_interface {
-    network = "thanos"
+    subnetwork = "thanos-in-usa"
     access_config {
       network_tier = "PREMIUM"
     }
