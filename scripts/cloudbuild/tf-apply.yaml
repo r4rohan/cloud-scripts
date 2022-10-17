@@ -1,7 +1,7 @@
 steps:
 - id: 'Pre Trigger Status Message'
   name: 'alpine/curl'
-  entrypoint: bash
+  entrypoint: sh
   args: 
     - -c
     - |
@@ -10,7 +10,7 @@ steps:
 - id: 'Download Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
   dir: 'scripts/cloudbuild/gce-tf'
-  entrypoint: bash
+  entrypoint: sh
   args:
     - -c
     - |
