@@ -17,4 +17,4 @@ steps:
 - id: 'Push Terraform Output file to JFrog Artifactory'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
   dir: 'scripts/cloudbuild/gce-tf'
-  args: ['-H', '${_JFROG_API}', '-T', 'tf_plan', '${_JFROG_ARTIFACTORY_URL}/tf/tf_plan']
+  args: ['curl', '-H', '${_JFROG_API}', '-T', 'tf_plan', '${_JFROG_ARTIFACTORY_URL}/tf/tf_plan']
