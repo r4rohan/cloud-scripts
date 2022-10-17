@@ -14,6 +14,16 @@ steps:
   args:
   - '-c'
   - |
-    ls -la && pwd
     curl -H "${_JFROG_API}" -XGET "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan" --output tf_plan
+    ls -la && pwd
+
+# - id: 'Terraform Plan with output file'
+#   name: 'hashicorp/terraform:1.0.0'
+#   dir: 'scripts/cloudbuild/gce-tf'
+#   entrypoint: sh
+#   args:
+#     - -c
+#     - |
+#       ls -la && pwd
+#       terraform 
   

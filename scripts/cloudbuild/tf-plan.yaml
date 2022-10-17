@@ -46,13 +46,3 @@ steps:
     ls -la && pwd
     curl -H "${_JFROG_API}" -T tf_plan "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan"
 
-- id: 'Publish message to PubSub topic'
-  name: 'gcr.io/cloud-builders/gcloud'
-  entrypoint: bash
-  args:
-  - -c
-  - |
-    gcloud pubsub topics publish ${_PUBSUB_TOPIC} --message='"Build Succes"'
-
-options:
-  logging: CLOUD_LOGGING_ONLY

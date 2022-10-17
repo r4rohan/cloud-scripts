@@ -1,15 +1,7 @@
-const { App, LogLevel } = require("@slack/bolt");
 const { IncomingWebhook } = require('@slack/webhook');
-const url = '[Slack-token]';
+const url = '[SLACK_TOKEN]';
 
 const webhook = new IncomingWebhook(url);
-
-const app = new App({
-  token: "[token]", // from OAuth & Permissions tab of Slack APP.
-  signingSecret: "[secret]",
-  // LogLevel can be imported and used to make debugging simpler
-  logLevel: LogLevel.DEBUG
-});
 
 // subscribeSlack is the main function called by Cloud Functions.
 module.exports.subscribeSlack = (pubSubEvent, context) => {
@@ -34,6 +26,7 @@ const STATUS_COLOR = {
   FAILURE: '#EA4335', // red
   TIMEOUT: '#FBBC05', // yellow
   INTERNAL_ERROR: '#EA4335', // red
+  CANCELLED: '#808080' // grey
 };
 
 const createSlackMessage = (build) => {
@@ -46,7 +39,7 @@ const createSlackMessage = (build) => {
             type: "section",
             text: {
               type: "mrkdwn",
-              text: `*Cloud Build Trigger* - ${build.substitutions.TRIGGER_NAME}`,
+              text: `*First CB* - ${build.substitutions.TRIGGER_NAME}`,
             },
           },
           {
@@ -75,37 +68,10 @@ const createSlackMessage = (build) => {
           },
           {
             "type": "divider"
-          },
-          {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text: "Run Slack Slash command to approve and trigger consecutive Cloud build trigger."
-            }
-          }
+          },          
         ],
       },
     ],
   };
   return message;
 }
-
-app.action('approve_button', async ({ ack }) => {
-  await ack();
-  // Update the message to reflect the action
-});
-
-app.action('approve_button', async ({ ack, say }) => {
-  // Acknowledge action request
-  await ack();
-  await say('Terraform Plan Approved ✔️');
-});
-
-await context.chat.postMessage({
-  text: 'Hello world!',
-});
-
-await context.chat.update({
-  text: 'Hello world!',
-  ts: '1405894322.002768',
-});
