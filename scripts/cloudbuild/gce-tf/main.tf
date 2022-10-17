@@ -16,7 +16,7 @@ resource "google_compute_instance" "loki" {
     initialize_params {
       size  = 30
       type  = "pd-standard"
-      image = "ubuntu-1804-bionic-v20221015"
+      image = "debian-cloud/debian-11"
     }
   }
 
