@@ -39,7 +39,7 @@ steps:
 - id: 'Push Terraform Output file to JFrog Artifactory'
   name: 'docker.bintray.io/jfrog/artifactory-cpp-ce'
   dir: 'scripts/cloudbuild/gce-tf'
-  entrypoint: 'sh'
+  entrypoint: sh
   args: 
   - '-c'
   - |
