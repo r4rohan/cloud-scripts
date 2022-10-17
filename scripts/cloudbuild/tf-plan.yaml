@@ -2,35 +2,17 @@ steps:
 - id: 'Terraform Initialize'
   name: 'hashicorp/terraform:1.0.0'
   dir: 'scripts/cloudbuild/gce-tf'
-  entrypoint: sh
-  args:
-    - -c
-    - |
-      terraform init
-      terraform get
+  args: ['init']
 
 - id: 'Terraform Format and Validate'
   name: 'hashicorp/terraform:1.0.0'
   dir: 'scripts/cloudbuild/gce-tf'
-  entrypoint: sh
-  args:
-    - -c
-    - |
-      terraform fmt -recursive -check -diff
-      terraform validate
+  args: ['fmt', '-recursive', '-check', 'diff']
 
 - id: 'Terraform Plan with output file'
   name: 'hashicorp/terraform:1.0.0'
   dir: 'scripts/cloudbuild/gce-tf'
-  entrypoint: sh
-  args:
-    - -c
-    - |
-      if [ -f "tf_plan" ]; 
-        then
-          rm "tf_plan"
-      fi
-      terraform plan -out "tf_plan"
+  args: ['plan', '-out tf_plan']
 
 - id: 'Push Terraform Output file to JFrog Artifactory'
   name: 'docker.bintray.io/jfrog/artifactory-cpp-ce'
@@ -40,4 +22,3 @@ steps:
     - '-c'
     - |
       curl -H "${_JFROG_API}" -T tf_plan "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan"
-
