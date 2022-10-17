@@ -22,9 +22,6 @@ resource "google_compute_instance" "loki" {
 
   network_interface {
     subnetwork = "projects/rohan-orbit/regions/us-central1/subnetworks/thanos-in-usa"
-    access_config {
-      network_tier = "PREMIUM"
-    }
   }
 
   service_account {
