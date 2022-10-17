@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket  = "sasuke-tf"
-    prefix  = "main"
+    bucket = "sasuke-tf"
+    prefix = "main"
   }
 }
