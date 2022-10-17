@@ -9,7 +9,7 @@ steps:
     curl -X POST -H 'Content-type: application/json' --data '{"channel":"${_CHANNEL_ID}","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"Build Started for *$TRIGGER_NAME*"}}]}' "${_SLACK_WEBHOOK}"
 
 - id: 'Download Terraform Artifact from JFrog'
-  name: 'releases-docker.jfrog.io/jfrog/jfrog-cli-full-v2-jf'
+  name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
   entrypoint: 'sh'
   args:
   - '-c'
@@ -17,13 +17,21 @@ steps:
     curl -H "${_JFROG_API}" -XGET "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan" --output tf_plan
     ls -la && pwd
 
-# - id: 'Terraform Plan with output file'
-#   name: 'hashicorp/terraform:1.0.0'
-#   dir: 'scripts/cloudbuild/gce-tf'
-#   entrypoint: sh
-#   args:
-#     - -c
-#     - |
-#       ls -la && pwd
-#       terraform 
+- id: 'Terraform Plan with output file'
+  name: 'hashicorp/terraform:1.0.0'
+  entrypoint: sh
+  args:
+    - -c
+    - |
+      ls -la && pwd
+      terraform apply "tf_plan"
+      rm tf_plan
+
+- id: 'Delete Terraform Artifact from JFrog'
+  name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
+  entrypoint: 'sh'
+  args:
+  - '-c'
+  - |
+    curl -H "${_JFROG_API}" DELETE "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan"
   
