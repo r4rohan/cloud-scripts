@@ -1,7 +1,7 @@
 steps:
 - id: 'Pre Trigger Status Message'
   name: 'alpine/curl'
-  entrypoint: sh
+  entrypoint: bash
   args: 
     - -c
     - |
@@ -10,7 +10,7 @@ steps:
 - id: 'Download Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
   dir: 'scripts/cloudbuild/gce-tf'
-  entrypoint: 'sh'
+  entrypoint: bash
   args:
     - -c
     - |
@@ -19,7 +19,7 @@ steps:
 - id: 'Terraform Plan with output file'
   name: 'hashicorp/terraform:1.0.0'
   dir: 'scripts/cloudbuild/gce-tf'
-  entrypoint: sh
+  entrypoint: bash
   args:
     - -c
     - |
@@ -30,7 +30,7 @@ steps:
 - id: 'Delete Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
   dir: 'scripts/cloudbuild/gce-tf'
-  entrypoint: sh
+  entrypoint: bash
   args:
     - -c
     - |
