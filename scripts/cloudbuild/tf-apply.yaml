@@ -19,13 +19,7 @@ steps:
 - id: 'Terraform Plan with output file'
   name: 'hashicorp/terraform:1.0.0'
   dir: 'scripts/cloudbuild/gce-tf'
-  entrypoint: bash
-  args:
-    - -c
-    - |
-      terraform ifefbdrfgbdfgbgfbfgbsfgd
-      terraform appgvdsfvsdfbdfgdfgly "tf_plan"
-      rm tf_plan
+  args: ['ifefbdrfgbdfgbgfbfgbsfgd', 'apply "tf_plan"']
 
 - id: 'Delete Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
