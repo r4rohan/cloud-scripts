@@ -8,7 +8,7 @@ resource "google_compute_instance" "loki" {
   machine_type = "e2-medium"
   zone         = "us-central1-a"
 
-  tags = ["temp"]
+  tags = ["temporary"]
 
   boot_disk {
     initialize_params {
