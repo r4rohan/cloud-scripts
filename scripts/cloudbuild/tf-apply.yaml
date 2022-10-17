@@ -10,6 +10,7 @@ steps:
 
 - id: 'Download Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
+  dir: 'scripts/cloudbuild/gce-tf'
   entrypoint: 'sh'
   args:
   - '-c'
@@ -19,6 +20,7 @@ steps:
 
 - id: 'Terraform Plan with output file'
   name: 'hashicorp/terraform:1.0.0'
+  dir: 'scripts/cloudbuild/gce-tf'
   entrypoint: sh
   args:
     - -c
@@ -29,9 +31,10 @@ steps:
 
 - id: 'Delete Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
+  dir: 'scripts/cloudbuild/gce-tf'
   entrypoint: 'sh'
   args:
   - '-c'
   - |
-    curl -H "${_JFROG_API}" DELETE "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan"
+    curl -H "${_JFROG_API}" -XDELETE "${_JFROG_ARTIFACTORY_URL}/tf/tf_plan"
   
