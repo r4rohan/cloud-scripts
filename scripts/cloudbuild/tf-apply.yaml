@@ -26,8 +26,10 @@ steps:
     - -c
     - |
       ls -la && pwd
+      terraform init
       terraform apply "tf_plan"
       rm tf_plan
+      ls -la && pwd
 
 - id: 'Delete Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
