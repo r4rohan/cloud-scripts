@@ -8,6 +8,11 @@ steps:
   name: 'hashicorp/terraform:1.0.0'
   dir: 'scripts/cloudbuild/gce-tf'
   args: ['fmt', '-recursive', '-check', '-diff']
+ 
+- id: 'Terraform Validate'
+  name: 'hashicorp/terraform:1.0.0'
+  dir: 'scripts/cloudbuild/gce-tf'
+  args: ['validate']
 
 - id: 'Terraform Plan with output file'
   name: 'hashicorp/terraform:1.0.0'
