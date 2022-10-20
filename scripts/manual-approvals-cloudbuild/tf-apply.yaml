@@ -9,21 +9,21 @@ steps:
 
 - id: 'Download Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
-  dir: 'scripts/cloudbuild/gce-tf'
+  dir: 'scripts/manual-approvals-cloudbuild/gce-tf'
   args: ['curl', '-H', '${_JFROG_API}', '-XGET', '${_JFROG_ARTIFACTORY_URL}/tf/tf_plan', '--output', 'tf_plan']
 
 - id: 'Terraform Init'
   name: 'hashicorp/terraform:1.0.0'
-  dir: 'scripts/cloudbuild/gce-tf'
+  dir: 'scripts/manual-approvals-cloudbuild/gce-tf'
   args: ['init']
   
 - id: 'Terraform Apply'
   name: 'hashicorp/terraform:1.0.0'
-  dir: 'scripts/cloudbuild/gce-tf'
+  dir: 'scripts/manual-approvals-cloudbuild/gce-tf'
   args: ['apply', 'tf_plan']
 
 - id: 'Delete Terraform Artifact from JFrog'
   name: 'releases-docker.jfrog.io/jfrog/jfrog-cli'
-  dir: 'scripts/cloudbuild/gce-tf'
+  dir: 'scripts/manual-approvals-cloudbuild/gce-tf'
   args: ['curl', '-H', '${_JFROG_API}', '-XDELETE', '${_JFROG_ARTIFACTORY_URL}/tf/tf_plan']
   
