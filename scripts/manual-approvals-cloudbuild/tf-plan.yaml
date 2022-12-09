@@ -9,7 +9,7 @@ steps:
   dir: 'scripts/manual-approvals-cloudbuild/gce-tf'
   args: ['fmt', '-recursive', '-check', '-diff']
 
-- id: 'Terraform Format'
+- id: 'Terraform Validate'
   name: 'hashicorp/terraform:1.0.0'
   dir: 'scripts/manual-approvals-cloudbuild/gce-tf'
   args: ['validate']
