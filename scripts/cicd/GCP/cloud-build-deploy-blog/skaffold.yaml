@@ -1,0 +1,15 @@
+apiVersion: skaffold/v4beta7
+kind: Config
+metadata: 
+  name: marvel
+profiles:
+- name: dev
+  manifests:
+    rawYaml:
+    - cloud-deploy/marvel/dev/dev.yaml
+- name: prod
+  manifests:
+    rawYaml:
+    - cloud-deploy/marvel/prod/prod.yaml
+deploy:
+  cloudrun: {}

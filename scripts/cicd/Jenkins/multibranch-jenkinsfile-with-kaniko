@@ -1,0 +1,250 @@
+# if you want to know about this pipeline in detail, check my medium blog: https://medium.com/searce/multibranch-and-ha-pipeline-in-jenkins-with-kaniko-on-gke-8a1e7fa93403
+# In this blog, I've demonstrated setting up multibranch pipeline in Jenkins on GKE with all details
+
+pipeline {
+    agent {
+    kubernetes {
+      defaultContainer 'jnlp'
+      yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+      run: jnlp
+spec:
+  containers:
+  - name: git
+    image: gcr.io/cloud-builders/git
+    command:
+    - cat
+    tty: true
+  - name: python-382
+    image: registry.hub.docker.com/library/python:3.8.2
+    command:
+    - cat
+    tty: true
+  - name: busybox
+    image: busybox
+    command:
+    - cat
+    tty: true
+  - name: gcloud
+    image: google/cloud-sdk:latest
+    command:
+    - cat
+    tty: true   
+    volumeMounts:
+      - name: kaniko-secret
+        mountPath: /secret
+    env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /secret/kaniko-secret.json         
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    command:
+    - /busybox/cat
+    tty: true
+    volumeMounts:
+      - name: kaniko-secret
+        mountPath: /secret
+    env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /secret/kaniko-secret.json
+  volumes:
+    - name: kaniko-secret
+      secret:
+        secretName: kaniko-secret
+  imagePullSecrets:
+  - name: jenkins-image-pull-secret      
+
+"""
+   }
+}
+    environment {
+        JenkinsDockerGCRSecret = credentials('jenkins-docker-gcr-secret')
+    }
+    stages {
+        stage ('Pre Actions-Build Started') {
+            steps {
+                slackSend (
+                  color: '#F7A200' ,
+                  message: "Hey, your CI/CD trigger has *Started* \n*Trigger: * `${env.JOB_NAME}` #${env.BUILD_NUMBER}\n<${env.BUILD_URL}|OPEN JENKINS BUILD>\n*GitHub: * ${GIT_BRANCH} >> <${GIT_URL}|Open Github>" 
+                )
+            }
+        }
+        stage ('git clone - master') {
+            when {
+                branch 'master'
+            }
+            steps{
+                container('git'){
+
+                    git branch: 'master',
+                        credentialsId: 'Rohan-Github-Account-Credentials',
+                        url: 'https://github.com/r4rohan/CI-CD-on-Kubernetes.git'
+                }
+            }
+        }
+        stage ('git clone - uat') {
+            when {
+                branch 'uat'
+            }
+            steps{
+                container('git'){
+                    git branch: 'uat',
+                        credentialsId: 'Rohan-Github-Account-Credentials',
+                        url: 'https://github.com/r4rohan/CI-CD-on-Kubernetes.git'
+                }
+            }
+        }
+        stage ('git clone - prod') {
+            when {
+                branch 'prod'
+            }
+            steps{
+                container('git'){
+                    git branch: 'prod',
+                        credentialsId: 'Rohan-Github-Account-Credentials',
+                        url: 'https://github.com/r4rohan/CI-CD-on-Kubernetes.git'
+                }
+            }
+        }
+        stage('Feature Branch Build') {
+            when {
+                expression { BRANCH_NAME != 'master' && BRANCH_NAME != 'uat' && BRANCH_NAME != 'prod'}
+            }
+            steps{
+                container('git'){
+                    git branch: '${BRANCH_NAME}',
+                        credentialsId: 'Rohan-Github-Account-Credentials',
+                        url: 'https://github.com/r4rohan/CI-CD-on-Kubernetes.git'
+                }
+
+                dir ('jenkins-app') {
+                    container('python-382'){
+                        sh 'python -v'
+                        sh 'python app.py'
+                    }
+                }  
+            }
+        }
+        stage ('building docker image - master') {
+            when {
+                branch 'master'
+            }
+            steps {
+                dir ('jenkins-app') {
+                    container('python-382'){
+                        sh 'python --version'
+                    }
+
+                    container(name: 'kaniko', shell: '/busybox/sh') {
+                        sh 'pwd'
+                        sh """
+                        #!/busybox/sh 
+                        /kaniko/executor --dockerfile Dockerfile --context `pwd`/ --verbosity debug --insecure --skip-tls-verify --destination gcr.io/cloudorbit/app/dev/jenkinsapp:$BUILD_NUMBER --destination gcr.io/cloudorbit/app/dev/jenkinsapp:latest
+                        """
+                    }
+                }
+            }
+        }
+        stage ('building docker image - uat') {
+            when {
+                branch 'uat'
+            }
+            steps {
+
+                dir ('jenkins-app') {
+                    container('python-382'){
+                        sh 'python --version'
+                    }
+               
+                    container(name: 'kaniko', shell: '/busybox/sh') {
+                        sh 'pwd'
+                        sh """
+                        #!/busybox/sh 
+                        /kaniko/executor --dockerfile Dockerfile --context `pwd`/ --verbosity debug --insecure --skip-tls-verify --destination gcr.io/cloudorbit/app/uat/jenkinsapp:$BUILD_NUMBER --destination gcr.io/cloudorbit/app/uat/jenkinsapp:latest
+                        """
+                    }  
+                }
+            }
+        }
+        stage ('building docker image - prod') {
+            when {
+                branch 'uat'
+            }
+            steps {
+
+                dir ('jenkins-app') {
+                    container('python-382'){
+                        sh 'python --version'
+                    }
+               
+                    container(name: 'kaniko', shell: '/busybox/sh') {
+                        sh 'pwd'
+                        sh """
+                        #!/busybox/sh 
+                        /kaniko/executor --dockerfile Dockerfile --context `pwd`/ --verbosity debug --insecure --skip-tls-verify --destination gcr.io/cloudorbit/app/prod/jenkinsapp:$BUILD_NUMBER --destination gcr.io/cloudorbit/app/prod/jenkinsapp:latest
+                        """
+                    }  
+                }
+            }
+        }
+        stage ('deploy to k8s - master') {
+            when {
+                branch 'master'
+            }
+            steps {
+                container('gcloud'){
+                    sh 'kubectl version'
+                    sh 'gcloud auth activate-service-account --key-file=/secret/kaniko-secret.json'
+                    sh "gcloud container clusters get-credentials cloudorbit --zone us-central1-c --project cloudorbit"
+                    sh 'kubectl --namespace dev get pods'
+                    sh "kubectl --namespace dev --cluster gke_cloudorbit_us-central1-c_cloudorbit set image deployment dev-app dev-app=gcr.io/cloudorbit/app/dev/jenkinsapp:$BUILD_NUMBER"
+                }
+            }
+        }
+        stage ('deploy to k8s - uat') {
+            when {
+                branch 'uat'
+            }
+            steps {
+                container('gcloud'){
+                    sh 'kubectl version'
+                    sh 'gcloud auth activate-service-account --key-file=/secret/kaniko-secret.json'
+                    sh "gcloud container clusters get-credentials cloudorbit --zone us-central1-c --project cloudorbit"
+                    sh 'kubectl --namespace uat get pods'
+                    sh "kubectl --namespace uat --cluster gke_cloudorbit_us-central1-c_cloudorbit set image deployment uat-app uat-app=gcr.io/cloudorbit/app/uat/jenkinsapp:$BUILD_NUMBER"
+                }
+            }
+        }
+        stage ('deploy to k8s - prod') {
+            when {
+                branch 'prod'
+            }
+            steps {
+                container('gcloud'){
+                    sh 'kubectl version'
+                    sh 'gcloud auth activate-service-account --key-file=/secret/kaniko-secret.json'
+                    sh "gcloud container clusters get-credentials cloudorbit --zone us-central1-c --project cloudorbit"
+                    sh 'kubectl --namespace prod get pods'
+                    sh "kubectl --namespace prod --cluster gke_cloudorbit_us-central1-c_cloudorbit set image deployment prod-app prod-app=gcr.io/cloudorbit/app/prod/jenkinsapp:$BUILD_NUMBER"
+                }
+            }
+        }
+    }
+    post {
+        success {
+            slackSend (
+                color: '#00FF00', 
+                message: "Hurray! CI/CD is *Success* \n*Trigger: * `${env.JOB_NAME}` #${env.BUILD_NUMBER}\n<${env.BUILD_URL}|OPEN JENKINS BUILD>\n*GitHub: * ${GIT_BRANCH} >> <${GIT_URL}|Open Github>"
+            )
+        }
+        failure {   
+            slackSend (
+                color: '#FF0000', 
+                message: "Oops, something's wrong; CI/CD *Failed* \n*Trigger: * `${env.JOB_NAME}` #${env.BUILD_NUMBER}\n<${env.BUILD_URL}|OPEN JENKINS BUILD>\n*GitHub: * ${GIT_BRANCH} >> <${GIT_URL}|Open Github>"
+            )
+        }
+    }
+}

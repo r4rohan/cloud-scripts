@@ -1,0 +1,117 @@
+name: terraform-automation
+
+on: 
+  push:
+    paths:
+    - 'examples/**'
+
+concurrency: 
+  group: ${{ github.action == 'terraform-automation' }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./examples
+
+jobs:
+  terraform_plan:
+    name: 'Terraform Plan'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      
+      - name: Setup GCP Service Account
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          version: 'latest'
+          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      # Generates an execution plan for Terraform
+      - name: Terraform Plan
+        continue-on-error: true
+        run: |
+          chmod +x "${GITHUB_WORKSPACE}/.github/workflows/tf_init.sh"
+          "${GITHUB_WORKSPACE}/.github/workflows/tf_init.sh"
+          chmod +x "${GITHUB_WORKSPACE}/.github/workflows/tf_fmt.sh"
+          "${GITHUB_WORKSPACE}/.github/workflows/tf_fmt.sh"
+          chmod +x "${GITHUB_WORKSPACE}/.github/workflows/tf_plan_check.sh"
+          "${GITHUB_WORKSPACE}/.github/workflows/tf_plan_check.sh"
+          
+          terraform plan -out "tf_plan" -input=false
+      - name: Upload TF Plan
+        uses: actions/upload-artifact@v2
+        with:
+          name: tf_plan
+          path: ./examples/tf_plan
+          if-no-files-found: error
+          retention-days: 1
+
+  terraform_apply:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+    needs: terraform_plan
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: tf_apply
+
+    steps: 
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Setup GCP Service Account
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        version: 'latest'
+        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+
+    - name: Download TF Plan
+      uses: actions/download-artifact@v2
+      with:
+        name: tf_plan
+        path: ./examples
+
+    # Provision resources via Terraform        
+    - name: Terraform Apply
+      run: |
+        chmod +x "${GITHUB_WORKSPACE}/.github/workflows/tf_init.sh"
+        "${GITHUB_WORKSPACE}/.github/workflows/tf_init.sh"
+        terraform show "tf_plan"
+        terraform apply "tf_plan"
+  slack_notification:
+    name: 'Slack Notification'
+    runs-on: ubuntu-latest
+    needs: [terraform_plan, terraform_apply]
+    if: always()
+
+    steps:
+    - uses: actions/checkout@v2 
+
+    - name: Apply Slack Notification
+      uses: rtCamp/action-slack-notify@v2
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      env:
+        SLACK_CHANNEL: captain-alert
+        SLACK_COLOR: ${{ needs.terraform_apply.result }}
+        SLACK_TITLE: ${{ github.repository }}
+        SLACK_MESSAGE: ${{ github.event.head_commit.message }}
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_FOOTER: 'Terraform Github Actions Main Branch Alert'
+    
+    - name: Plan Slack Notification
+      uses: rtCamp/action-slack-notify@v2
+      if: github.ref != 'refs/heads/main' && github.event_name == 'push'
+      env:
+        SLACK_CHANNEL: captain-alert
+        SLACK_COLOR: ${{ needs.terraform_plan.result }}
+        SLACK_TITLE: ${{ github.repository }}
+        SLACK_MESSAGE: ${{ github.event.head_commit.message }}
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_FOOTER: 'Terraform Github Actions Feature Branch Push Alert'

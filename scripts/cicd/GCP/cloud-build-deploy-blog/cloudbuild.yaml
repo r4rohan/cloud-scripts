@@ -1,0 +1,41 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  id: Build docker image
+  secretEnv: ['REPO_URL']
+  entrypoint: 'sh'
+  args:
+  - -xe
+  - -c
+  - |
+    docker build \
+    --tag=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REGISTRY_NAME}/${_IMAGE}:$SHORT_SHA \
+    --tag=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REGISTRY_NAME}/${_IMAGE}:latest \
+    --build-arg REPO_URL=$$REPO_URL \
+    -f ${_DOCKERFILE_PATH} \
+    .
+
+- name: 'gcr.io/cloud-builders/docker'
+  id: Push docker image with SHA tag
+  args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REGISTRY_NAME}/${_IMAGE}:$SHORT_SHA']
+
+- name: 'gcr.io/cloud-builders/docker'
+  id: Push docker image with latest tag
+  args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REGISTRY_NAME}/${_IMAGE}:latest']
+
+- name: 'google/cloud-sdk:latest'
+  id: Trigger Cloud Deploy
+  entrypoint: 'sh'
+  args:
+  - -xe
+  - -c
+  - |
+    gcloud config set deploy/region ${_REGION}
+    gcloud deploy apply --file cloud-deploy/${_IMAGE}/${_ENV}/pipeline.yaml
+    gcloud deploy apply --file cloud-deploy/${_IMAGE}/${_ENV}/target.yaml
+    gcloud deploy releases create ${_IMAGE}-$SHORT_SHA \
+                        --delivery-pipeline=${_IMAGE} \
+                        --skaffold-file=${_IMAGE}.yaml
+availableSecrets:
+  secretManager:
+  - versionName: projects/$PROJECT_NUMBER/secrets/REPO_URL/versions/latest
+    env: 'REPO_URL'

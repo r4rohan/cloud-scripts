@@ -1,0 +1,129 @@
+pipeline {
+    agent any
+    environment {
+        JenkinsDockerGCRSecret = credentials('jenkins-docker-gcr-secret')
+    }
+    stages {
+        stage ('Pre Actions-Build Started') {
+            steps {
+                slackSend (
+                  color: '#F7A200' ,
+                  message: "Hey, your CI trigger has *Started* \n*Trigger: * `${env.JOB_NAME}` #${env.BUILD_NUMBER}\n<${env.BUILD_URL}|OPEN JENKINS BUILD>\n*GitHub: * ${GIT_BRANCH} >> <${GIT_URL}|Open Github>" 
+                )
+            }
+        }
+        stage ('git clone - master') {
+            when {
+                branch 'master'
+            }
+            steps{
+                git branch: 'master',
+                    credentialsId: 'Rohan-Github-Account-Credentials',
+                    url: 'https://github.com/r4rohan/CI-CD-on-Kubernetes'
+            }
+        }
+        stage ('git clone - uat') {
+            when {
+                branch 'uat'
+            }
+            steps{
+                git branch: 'uat',
+                    credentialsId: 'Rohan-Github-Account-Credentials',
+                    url: 'https://github.com/r4rohan/CI-CD-on-Kubernetes'
+            }
+        }
+        stage ('git clone - prod') {
+            when {
+                branch 'prod'
+            }
+            steps{
+               git branch: 'prod',
+                    credentialsId: 'Rohan-Github-Account-Credentials',
+                    url: 'https://github.com/r4rohan/CI-CD-on-Kubernetes'
+            }
+        }
+        stage('Feature Branch Build') {
+            when {
+                expression { BRANCH_NAME != 'master' && BRANCH_NAME != 'uat' && BRANCH_NAME != 'prod'}
+            }
+            steps{
+                echo "${BRANCH_NAME}"
+
+                git branch: '${BRANCH_NAME}',
+                    credentialsId: 'Rohan-Github-Account-Credentials',
+                    url: 'https://github.com/rohan-searce/ci-cd-python-app'
+                    
+                dir ('jenkins-app') {
+                    sh 'python -v'
+                    sh 'python app.py'
+                }       
+            }
+        }
+        stage ('build service into docker image - master') {
+            when {
+                branch 'master'
+            }
+            steps {
+                dir ('jenkins-app') {
+                    sh 'cat $JenkinsDockerGCRSecret | docker login --username _json_key --password-stdin https://gcr.io'
+
+                    sh 'python -v'
+                    sh 'docker build --file Dockerfile --tag gcr.io/cloudorbit/app/dev/jenkinsapp:$BUILD_NUMBER --tag gcr.io/cloudorbit/app/dev/jenkinsapp:latest .'
+                    sh 'docker push gcr.io/cloudorbit/app/dev/jenkinsapp:$BUILD_NUMBER'   
+                    sh 'docker push gcr.io/cloudorbit/app/dev/jenkinsapp:latest'
+                    sh 'docker image rm gcr.io/cloudorbit/app/dev/jenkinsapp:$BUILD_NUMBER'
+                    sh 'docker image rm gcr.io/cloudorbit/app/dev/jenkinsapp:latest'
+                }
+            }
+        }
+        stage ('build service into docker image - uat') {
+            when {
+                branch 'uat'
+            }
+            steps {
+                dir ('jenkins-app') {
+                    sh 'cat $JenkinsDockerGCRSecret | docker login --username _json_key --password-stdin https://gcr.io'
+                    
+                    sh 'python -v'
+                    sh 'docker build --file Dockerfile --tag gcr.io/cloudorbit/app/uat/jenkinsapp:$BUILD_NUMBER --tag gcr.io/cloudorbit/app/uat/jenkinsapp:latest .'
+                    sh 'docker push gcr.io/cloudorbit/app/uat/jenkinsapp:$BUILD_NUMBER'   
+                    sh 'docker push gcr.io/cloudorbit/app/uat/jenkinsapp:latest'
+                    sh 'docker image rm gcr.io/cloudorbit/app/uat/jenkinsapp:$BUILD_NUMBER'
+                    sh 'docker image rm gcr.io/cloudorbit/app/uat/jenkinsapp:latest'  
+                }
+            }
+        }
+        stage ('build service into docker image - prod') {
+            when {
+                branch 'prod'
+            }
+            steps {
+                dir ('jenkins-app') {
+                    sh 'cat $JenkinsDockerGCRSecret | docker login --username _json_key --password-stdin https://gcr.io'
+
+                    sh 'python -v'
+                    sh 'docker build --file Dockerfile --tag gcr.io/cloudorbit/app/prod/jenkinsapp:$BUILD_NUMBER --tag gcr.io/cloudorbit/app/prod/jenkinsapp:latest .'
+                    sh 'docker push gcr.io/cloudorbit/app/prod/jenkinsapp:$BUILD_NUMBER'   
+                    sh 'docker push gcr.io/cloudorbit/app/prod/jenkinsapp:latest'
+                    sh 'docker image rm gcr.io/cloudorbit/app/prod/jenkinsapp:$BUILD_NUMBER'
+                    sh 'docker image rm gcr.io/cloudorbit/app/prod/jenkinsapp:latest'  
+                }
+            }
+        }
+
+    }
+    post {
+        success {
+            slackSend (
+                color: '#00FF00', 
+                message: "Hurray! CI is *Success* and CD has been *Started* \n*Trigger: * `${env.JOB_NAME}` #${env.BUILD_NUMBER}\n<${env.BUILD_URL}|OPEN JENKINS BUILD>\n*GitHub: * ${GIT_BRANCH} >> <${GIT_URL}|Open Github>"
+            )
+        }
+        failure {   
+            slackSend (
+                color: '#FF0000', 
+                message: "Oops, something's wrong; CI *Failed* \n*Trigger: * `${env.JOB_NAME}` #${env.BUILD_NUMBER}\n<${env.BUILD_URL}|OPEN JENKINS BUILD>\n*GitHub: * ${GIT_BRANCH} >> <${GIT_URL}|Open Github>"
+            )
+        }
+    }
+}
