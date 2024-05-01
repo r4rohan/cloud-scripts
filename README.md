@@ -16,8 +16,10 @@ Also contains scripts related to our(Rohan Singh and Rahul Kumar Singh) medium b
 
 [Label Disk using Automation (shell script) in Google Cloud Platform](https://medium.com/@rahul.singh.1807/label-disk-using-automation-shell-script-in-google-cloud-platform-607db777fb1b) - By [Rahul Kumar Singh](rahulvatsya.medium.com)
 
+[Automate and Deploy Springboot app as a Service in GCE VM](https://blog.searce.com/automate-and-deploy-springboot-app-as-a-service-in-gce-vm-ca2baa2fb4b1) - By [Rohan Singh](https://rohankalhans.medium.com/)
+
 [Using Slack to automate manual approvals in Google Cloud Build](https://faun.pub/using-slack-to-automate-manual-approvals-in-google-cloud-build-33de00be6a89) - By [Rohan Singh](https://rohankalhans.medium.com/)
 
-[Cloud Build + Cloud Deploy: Best Siblings]() - By [Rohan Singh](https://rohankalhans.medium.com/)
+[Cloud Build + Cloud Deploy: Best Siblings](https://rohankalhans.medium.com/cloud-build-cloud-deploy-best-siblings-b591b4e7aff) - By [Rohan Singh](https://rohankalhans.medium.com/)
 
 _Contributions are most welcome_

@@ -1,0 +1,27 @@
+[Unit]
+Description=Hello World Spring Boot Demo Service
+[Service]
+
+User=ubuntu
+
+#change this to your workspace
+WorkingDirectory=/home/ubuntu/exec-script
+
+#path to executable
+#executable is a bash script which calls jar file
+ExecStart=/home/ubuntu/exec-script/hello-world
+
+SuccessExitStatus=143
+TimeoutStopSec=10
+
+# asking systemd to always restart the service if program exits for whatever reason
+Restart=always
+
+# restart time
+RestartSec=1
+
+#  asking systemd to attempt to always restart your service
+StartLimitIntervalSec=0
+
+[Install]
+WantedBy=multi-user.target

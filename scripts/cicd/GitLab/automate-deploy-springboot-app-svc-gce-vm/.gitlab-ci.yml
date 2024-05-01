@@ -1,0 +1,67 @@
+services:
+  - docker:18.09.9-dind
+
+cache:
+  paths:
+    - .m2/repository
+
+before_script:
+  - source ci/script.sh
+
+variables:
+  VARIABLES_FILE: ./variables.txt
+  DOCKER_API_VERSION: "1.39"
+  DOCKER_HOST: tcp://localhost:2375
+
+stages:
+  - build
+  - deploy_dev
+  - deploy_stg
+  - deploy_prod
+
+maven-build:
+  image: maven:3.6-jdk-8
+  stage: build
+  script:
+    - mvn verify -DskipTests
+  variables:
+    MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  artifacts:
+    paths:
+      - target/hello-world.jar
+    expire_in: 1 week
+
+dev-deployment:
+  stage: deploy_dev
+  image: google/cloud-sdk
+  only:
+    refs:
+      - branches
+  except:
+    refs:
+      - master
+      - stg
+  script:
+    - deploy_vm dev
+
+staging-deployment:
+  stage: deploy_stg
+  image: google/cloud-sdk
+  only:
+    refs:
+      - master
+      - stg
+  script:
+    - deploy_vm stg
+  when: manual
+
+production-deployment:
+  stage: deploy_prod
+  image: google/cloud-sdk
+  only:
+    refs:
+      - master
+      - stg
+  script:
+    - deploy_vm prod
+  when: manual
