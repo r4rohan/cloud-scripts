@@ -1,5 +1,5 @@
 # Cloud Scripts
-GitHub Repository for storing **Bash**, **Python**, **Jinja** and **Powershell** Scripts.
+GitHub Repository for storing **Bash**, **Python**, **Jinja**, **Powershell** **CICD** etc Scripts.
 
 Maintainers: [Rohan Singh](https://www.linkedin.com/in/rohankalhans/) & [Rahul Kumar Singh](https://www.linkedin.com/in/rahulvatsya/)
 
